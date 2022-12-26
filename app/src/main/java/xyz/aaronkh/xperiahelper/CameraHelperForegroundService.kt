@@ -10,11 +10,14 @@ import android.graphics.PixelFormat
 import android.os.IBinder
 import android.view.*
 import androidx.core.app.NotificationCompat
+import kotlinx.coroutines.*
 
 class CameraHelperForegroundService: Service() {
     private var isNotificationShown = false
     private var inflatedView: View? = null
     private var windowManager: WindowManager? = null
+
+    private val job = Job()
 
     override fun onCreate() {
         super.onCreate()
@@ -59,6 +62,22 @@ class CameraHelperForegroundService: Service() {
         }
 
         attachWindow(inflatedView!!)
+
+
+        CoroutineScope(job + Dispatchers.Default).launch {
+            if(!isNotificationShown) return@launch
+
+            launch(job + Dispatchers.Default) {
+                while(isNotificationShown) {
+                    val isForeground = ShizukuUtils.isForegroundPackage("com.sonymobile.photopro")
+                    if(!isForeground) break
+                    delay(200)
+                }
+                try {
+                    stopService()
+                } catch (e: Exception) {}
+            }
+        }
     }
 
     private fun stopService() {

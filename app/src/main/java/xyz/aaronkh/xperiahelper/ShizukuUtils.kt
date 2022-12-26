@@ -1,8 +1,11 @@
 package xyz.aaronkh.xperiahelper
 
+import android.app.ActivityManagerNative
+import android.app.IActivityManager
 import android.content.Context
 import android.os.SystemClock
 import android.hardware.input.IInputManager
+import android.os.IBinder
 import android.view.KeyEvent
 import rikka.shizuku.Shizuku
 import rikka.shizuku.ShizukuBinderWrapper
@@ -20,6 +23,20 @@ class ShizukuUtils {
             val binder =
                 ShizukuBinderWrapper(SystemServiceHelper.getSystemService(Context.INPUT_SERVICE))
             IInputManager.Stub.asInterface(binder)
+        }
+
+        private val iActivityManager: IActivityManager by lazy {
+            val binder: IBinder =
+                ShizukuBinderWrapper(SystemServiceHelper.getSystemService(Context.ACTIVITY_SERVICE))
+            ActivityManagerNative.asInterface(binder)
+        }
+
+
+        fun isForegroundPackage(packageName: String): Boolean {
+            val procState = iActivityManager.getPackageProcessState(packageName, "xyz.aaronkh.xperiahelper")
+
+            // See cs/ProcessStateEnum.aidl
+            return (procState % 10) == 2
         }
 
         fun injectEvent(keyCode: Int) {
@@ -41,5 +58,4 @@ class ShizukuUtils {
                 iInputManager.injectInputEvent(upEvent, 0)
             }
     }
-
 }

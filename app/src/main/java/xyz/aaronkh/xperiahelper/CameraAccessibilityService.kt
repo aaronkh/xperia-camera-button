@@ -2,7 +2,6 @@ package xyz.aaronkh.xperiahelper
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Intent
-import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import xyz.aaronkh.xperiahelper.CameraHelperForegroundService.Companion.START_ACTION
